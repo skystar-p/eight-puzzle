@@ -80,7 +80,7 @@ class Puzzle:
                 if self.grid[i][j] != self.sol[i * 3 + j]:
                     return False
         return True
-
+    """
     def conflict_r(self, t):
         r = 0
         if t == 0:
@@ -168,83 +168,17 @@ class Puzzle:
                 h += (abs(k // 3 - i) + abs(k % 3 - j))
         return h
         
-
+    """
     def heuristic(self):
         h = 0
-        conflicts = []
-        
-        for ri in range(3):
-            conflicts = []
-            tk = -1
-            tkc = 0
-            k = -1
-            for i in range(3):
-                conflicts.append(self.conflict_r(self.grid[ri][i]))
-                if tkc < conflicts[i]:
-                    tkc = conflicts[i]
-                    tk = self.grid[ri][i]
-                    k = i
-            if tkc == 0:
-                continue
-            conflicts[k] = 0
-            for i in range(3):
-                if self.conflict_t(self.grid[ri][i], tk):
-                    conflicts[i] -= 1
-            h += 1
-
-            tk = -1
-            tkc = 0
-            k = -1
-            for i in range(3):
-                if tkc < conflicts[i]:
-                    tkc = conflicts[i]
-                    tk = self.grid[ri][i]
-                    k = i
-            if tkc == 0:
-                continue
-            conflicts[k] = 0
-            for i in range(3):
-                if self.conflict_t(self.grid[ri][i], tk):
-                    conflicts[i] -= 1
-            h += 1
-
-        for ci in range(3):
-            conflicts = []
-            tk = -1
-            tkc = 0
-            k = -1
-            for i in range(3):
-                conflicts.append(self.conflict_c(self.grid[i][ci]))
-                if tkc < conflicts[i]:
-                    tkc = conflicts[i]
-                    tk = self.grid[i][ci]
-                    k = i
-            if tkc == 0:
-                continue
-            conflicts[k] = 0
-            for i in range(3):
-                if self.conflict_t(self.grid[i][ci], tk):
-                    conflicts[i] -= 1
-            h += 1
-
-            tk = -1
-            tkc = 0
-            k = -1
-            for i in range(3):
-                if tkc < conflicts[i]:
-                    tkc = conflicts[i]
-                    tk = self.grid[i][ci]
-                    k = i
-            if tkc == 0:
-                continue
-            conflicts[k] = 0
-            for i in range(3):
-                if self.conflict_t(self.grid[i][ci], tk):
-                    conflicts[i] -= 1
-            h += 1
-
-        h *= 2
-        h += self.md()
+        for i in range(3):
+            for j in range(3):
+                if self.grid[i][j] == 0:
+                    continue
+                if i != self.solind[self.grid[i][j]] // 3:
+                    h += 1
+                if j != self.solind[self.grid[i][j]] % 3:
+                    h += 1
 
         return h + self.gen
 
