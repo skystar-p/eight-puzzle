@@ -73,7 +73,7 @@ class Puzzle:
         return c
 
     def is_solved(self):
-        sol = list(range(9))
+        sol = [1, 2, 3, 8, 0, 4, 7, 6, 5]
         for i in range(3):
             for j in range(3):
                 if self.grid[i][j] != sol[i * 3 + j]:
@@ -82,12 +82,34 @@ class Puzzle:
 
     def heuristic(self):
         h = 0
-        sol = list(range(9))
+        h2 = 0
+        sol = [1, 2, 3, 8, 0, 4, 7, 6, 5]
+        solind = [4, 0, 1, 2, 5, 8, 7, 6, 3]
         for i in range(3):
             for j in range(3):
-                k = 3 * i + j
                 s = self.grid[i][j]
-                h += (abs(k // 3 - s // 3) + abs(k % 3 - s % 3))
+                k = solind[s]
+                if s == 0:
+                    continue
+                h += (abs(k // 3 - i) + abs(k % 3 - j))
+        
+        if self.grid[1][1] != 0:
+            h2 += 1
+        l1 = [(self.grid[0][0], self.grid[0][1]), 
+                (self.grid[0][1], self.grid[0][2]),
+                (self.grid[0][2], self.grid[1][2]),
+                (self.grid[1][2], self.grid[2][2]),
+                (self.grid[2][2], self.grid[2][1]),
+                (self.grid[2][1], self.grid[2][0]),
+                (self.grid[2][0], self.grid[1][0])]
+        l2 = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8)]
+        for p in l1:
+            try:
+                l2.index(p)
+            except ValueError:
+                h2 += 2
+        h = h + 3 * h2
+        
         return h + self.gen
 
 
@@ -98,11 +120,11 @@ def solve(puzzle):
 
     while True:
         curr = heapq.heappop(pq)
-        # print('Step {}, current heuristic is {} / {}'.format(steps, curr.heuristic(), curr.grid))
-        # print('Gen is {}'.format(curr.gen))
+        #print('Step {}, current heuristic is {} / {}'.format(steps, curr.heuristic(), curr.grid))
+        #print('Gen is {}'.format(curr.gen))
         if curr.is_solved():
-            print('solved in {} steps'.format(steps))
-            return curr.gen
+            print('solved in {} steps; Gen is {}'.format(steps, curr.gen))
+            return (steps, curr.gen)
 
         try:
             new = curr.left()
@@ -137,7 +159,7 @@ def solve(puzzle):
 
 
 def scramble():
-    g = list(range(9))
+    g = [1, 2, 3, 8, 0, 4, 7, 6, 5]
     shuffle(g)
     c = 0
     gg = g[:]
@@ -147,16 +169,24 @@ def scramble():
             if gg[j] < gg[i]:
                 c += 1
 
-    if c % 2 == 1:
+    if c % 2 == 0:
         return scramble()
     l = [g[:3], g[3:6], g[6:]]
     return l
 
 
+gen_list = []
 step_list = []
-for _ in range(101):
+for _ in range(511):
     puz = Puzzle(scramble())
-    step_list.append(solve(puz))
+    s = solve(puz)
+    step_list.append(s[0])
+    gen_list.append(s[1])
 
-print(max(step_list))
-print(sum(step_list) / len(step_list))
+print("max of gen:  {}".format(max(gen_list)))
+print("avg of gen:  {}".format(sum(gen_list) / len(gen_list)))
+print("avg of step: {}".format(sum(step_list) / len(step_list)))
+"""
+puz = Puzzle([[0, 1, 3], [8, 2, 4], [7, 6, 5]])
+solve(puz)
+"""
